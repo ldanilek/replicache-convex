@@ -11,7 +11,7 @@ const rep = process.browser
       pushURL: '/api/replicache-push',
       pullURL: '/api/replicache-pull',
       mutators: {
-        async createMessage(tx, {id, from, content, order}) {
+        async createMessage(tx: any, {id, from, content, order}: any) {
           await tx.put(`message/${id}`, {
             from,
             content,
@@ -27,31 +27,31 @@ if (rep) {
 }
 
 export default function Home() {
-  return <Chat rep={rep} />;
+  return <Chat rep={rep!} />;
 }
 
-function Chat({rep}) {
+function Chat({rep}: {rep: Replicache<any>}) {
   const messages = useSubscribe(
     rep,
     async tx => {
-      const list = await tx.scan({prefix: 'message/'}).entries().toArray();
-      list.sort(([, {order: a}], [, {order: b}]) => a - b);
+      const list = await tx.scan({prefix: 'message/'}).entries().toArray() as any;
+      list.sort(([, {order: a}]: any, [, {order: b}]: any) => a - b);
       return list;
     },
     [],
   );
 
-  const usernameRef = useRef();
-  const contentRef = useRef();
+  const usernameRef = useRef() as any;
+  const contentRef = useRef() as any;
 
-  const onSubmit = e => {
+  const onSubmit = (e: any) => {
     e.preventDefault();
     const last = messages.length && messages[messages.length - 1][1];
     const order = (last?.order ?? 0) + 1;
     rep.mutate.createMessage({
       id: nanoid(),
-      from: usernameRef.current.value,
-      content: contentRef.current.value,
+      from: usernameRef.current!.value,
+      content: contentRef.current!.value,
       order,
     });
     contentRef.current.value = '';
@@ -70,8 +70,8 @@ function Chat({rep}) {
   );
 }
 
-function MessageList({messages}) {
-  return messages.map(([k, v]) => {
+function MessageList({messages}: any) {
+  return messages.map(([k, v]: any) => {
     return (
       <div key={k}>
         <b>{v.from}: </b>
@@ -81,7 +81,7 @@ function MessageList({messages}) {
   });
 }
 
-const styles = {
+const styles: any = {
   container: {
     display: 'flex',
     flexDirection: 'column',
@@ -103,7 +103,7 @@ const styles = {
   },
 };
 
-function listen(rep) {
+function listen(rep: Replicache<any>) {
   console.log('listening');
   // Listen for pokes, and pull whenever we get one.
   Pusher.logToConsole = true;
